@@ -25,7 +25,6 @@
 	$stmt = $pdo->query($sql);
 	/*データベース内にテーブルを作成終了*/
 	
-    $lightpass = "pass";/*パスワードの設定*/
     $editname = NULL;
     $editcomment = NULL;
     $chanum = NULL;
@@ -69,22 +68,33 @@
                 $pass2 = $_POST["pass2"];
                 
                 if(!empty($delnum) && !empty($pass2)) {/*空欄がない場合*/
+                    $sql = 'SELECT * FROM tb_mission5_1';
+	                $stmt = $pdo->query($sql);
+                    $results = $stmt->fetchAll();
                     
-                    if($pass2 == $lightpass) {/*パスワードが正しい場合*/
-                        /*削除番号のデータレコードを削除*/
-                        $id = $delnum;
-	                    $sql = 'delete from tb_mission5_1 where id=:id';/*DELETEのSQLの作成*/
-	                    $stmt = $pdo->prepare($sql);
-	                    $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-	                    $stmt->execute();
-	                    /*削除番号のデータの削除完了*/
-	                    
-                    } else {/*パスワードが違う場合*/
-                        echo '<font color="red">';
-                        echo "パスワードが違います！";
-                        echo '<font color="black">';
+	                foreach ($results as $row){
+
+                        if($delnum == $row['id']) {/*削除対象番号と一致した場合*/
+
+                            if($pass2 == $row['pass']) {/*パスワードが一致した場合*/
+                                /*削除番号のデータレコードを削除*/
+                                $id = $delnum;
+                                $sql = 'delete from tb_mission5_1 where id=:id';/*DELETEのSQLの作成*/
+                                $stmt = $pdo->prepare($sql);
+                                $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+                                $stmt->execute();
+                                /*削除番号のデータの削除完了*/
+
+                            } else {/*パスワードが違う場合*/
+                                echo '<font color="red">';
+                                echo "パスワードが違います！";
+                                echo '<font color="black">';
+                            }
+
+                        }
+
                     }
-                    
+
                 }
                 
             } else if(isset($_POST["changeb"])) {/*編集ボタンが押された場合*/
@@ -92,31 +102,32 @@
                 $pass3 = $_POST["pass3"];
 
                 if(!empty($change) && !empty($pass3)) {/*空欄がない場合*/
-                
-                    if($pass3 == $lightpass) {/*パスワードが正しい場合*/
+                    $sql = 'SELECT * FROM tb_mission5_1';
+	                $stmt = $pdo->query($sql);
+                    $results = $stmt->fetchAll();
                     
-                        $sql = 'SELECT * FROM tb_mission5_1';
-	                    $stmt = $pdo->query($sql);
-	                    $results = $stmt->fetchAll();
-	                    foreach ($results as $row){
-		                //$rowの中にはテーブルのカラム名が入る
-		                    if($row['id'] == $change) {
-		                        $chanum = $change;
-		                        $editname = $row['name'];
-		                        $editcomment = $row['comment'];
-		                    }
+	                foreach ($results as $row){
+
+		                if($row['id'] == $change) {/*編集したい番号だった場合*/
+
+                             if($row['pass'] == $pass3) {/*パスワードが一致した場合*/
+                                $chanum = $change;
+                                $editname = $row['name'];
+                                $editcomment = $row['comment'];
+
+                            } else {/*パスワードが違う場合*/
+                                echo '<font color="red">';
+                                echo "パスワードが違います！";
+                                echo '<font color="black">';
+                            }
+
+		                }
 		                    
-	                    }
-                        
-                    } else {/*パスワードが違う場合*/
-                        echo '<font color="red">';
-                        echo "パスワードが違います！";
-                        echo '<font color="black">';
                     }
                     
-                }
-                
-          }
+                } 
+                    
+            }
 ?>
     <form action="" method="post">
         <p>
